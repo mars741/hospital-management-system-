@@ -148,6 +148,12 @@ servers, custom ports — you can run everything by hand. This is also
 how you would point the backend at a real Postgres / Redis without
 Compose.
 
+> If you're staying on SQLite locally, install only `requirements.txt`
+> (drop the `-r requirements-prod.txt` from the pip commands below).
+> The prod file pulls in `psycopg2-binary` and `redis`, which the
+> SQLite path doesn't need and which can fail to build on newer
+> Python versions without PostgreSQL dev tools installed.
+
 ### Backend — Django
 
 **macOS / Linux:**
@@ -155,7 +161,7 @@ Compose.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-prod.txt
 python manage.py migrate
 python manage.py seed_data
 python manage.py runserver 8000
@@ -166,7 +172,7 @@ python manage.py runserver 8000
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-prod.txt
 python manage.py migrate
 python manage.py seed_data
 python manage.py runserver 8000
@@ -177,7 +183,7 @@ python manage.py runserver 8000
 ```bat
 python -m venv .venv
 .venv\Scripts\activate.bat
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-prod.txt
 python manage.py migrate
 python manage.py seed_data
 python manage.py runserver 8000

@@ -24,8 +24,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /build
 
-COPY requirements.txt .
-RUN pip wheel --wheel-dir /wheels -r requirements.txt
+# Production image installs BOTH requirement files so it gets gunicorn,
+# psycopg2-binary, and redis on top of the core deps the local dev path uses.
+COPY requirements.txt requirements-prod.txt ./
+RUN pip wheel --wheel-dir /wheels -r requirements.txt -r requirements-prod.txt
 
 # ---- Stage 2: runtime ----
 FROM python:3.12-slim AS runtime
@@ -49,8 +51,8 @@ WORKDIR /app
 
 # Install pre-built wheels from the builder stage
 COPY --from=builder /wheels /wheels
-COPY requirements.txt .
-RUN pip install --no-index --find-links=/wheels -r requirements.txt \
+COPY requirements.txt requirements-prod.txt ./
+RUN pip install --no-index --find-links=/wheels -r requirements.txt -r requirements-prod.txt \
     && rm -rf /wheels
 
 # Application code (owned by the unprivileged user)

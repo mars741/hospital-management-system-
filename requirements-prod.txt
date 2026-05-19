@@ -1,0 +1,26 @@
+# Production-only dependencies — only needed for the Docker /
+# PostgreSQL deployment path. The local SQLite-based setup
+# (setup.sh / setup.bat) does NOT install this file.
+#
+# psycopg2-binary in particular has historically failed on
+# bleeding-edge Python releases (no wheel -> source build ->
+# pg_config not found). Keeping it out of requirements.txt
+# means new contributors on Python 3.13 / 3.14 can run the
+# project locally without installing PostgreSQL development
+# tools.
+#
+# Production / Docker installs both files:
+#   pip install -r requirements.txt -r requirements-prod.txt
+#
+# Same versions as before — these were split out, not changed.
+
+# --- WSGI app server (used by Dockerfile.backend's CMD) ---
+gunicorn==21.2.0
+
+# --- PostgreSQL driver (used only when POSTGRES_HOST is set;
+#     see hospital_project/settings.py) ---
+psycopg2-binary==2.9.9
+
+# --- Redis cache backend client (used only when REDIS_URL is
+#     set; see hospital_project/settings.py) ---
+redis==5.0.4

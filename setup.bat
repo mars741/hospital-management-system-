@@ -8,9 +8,47 @@ echo ======================================
 
 SET SCRIPT_DIR=%~dp0
 SET FRONTEND_DIR=%SCRIPT_DIR%Frontend\hospital-frontend
+SET VENV_DIR=%SCRIPT_DIR%venv
 
 echo.
-echo Installing backend dependencies...
+echo Checking Python version...
+python -c "import sys; ok=(3,10)<=sys.version_info[:2]<=(3,13); print('[WARN] Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + ' is outside the tested 3.10-3.13 range. If pip install fails (psycopg2, cffi, or cryptography wheel errors), install Python 3.12 from https://www.python.org/downloads/ and re-run setup.bat.') if not ok else None"
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [ERROR] Could not run python. Make sure Python 3.x is installed and on PATH.
+    pause
+    exit /b %ERRORLEVEL%
+)
+
+echo.
+if not exist "%VENV_DIR%\Scripts\activate.bat" (
+    echo Creating Python virtual environment at .\venv\ ...
+    python -m venv "%VENV_DIR%"
+    if %ERRORLEVEL% NEQ 0 (
+        echo.
+        echo [ERROR] Failed to create virtual environment. Aborting setup.
+        pause
+        exit /b %ERRORLEVEL%
+    )
+) else (
+    echo Reusing existing virtual environment at .\venv\ ...
+)
+
+REM Activate the venv for the remainder of this script. From here on,
+REM `python` and `pip` refer to the venv's binaries.
+call "%VENV_DIR%\Scripts\activate.bat"
+
+echo.
+echo Installing backend dependencies (requirements.txt only - production
+echo extras like psycopg2-binary live in requirements-prod.txt and are
+echo NOT installed for local dev)...
+python -m pip install --upgrade pip
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [ERROR] pip upgrade failed. Aborting setup.
+    pause
+    exit /b %ERRORLEVEL%
+)
 pip install -r "%SCRIPT_DIR%requirements.txt"
 if %ERRORLEVEL% NEQ 0 (
     echo.
@@ -52,8 +90,9 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
-echo Starting Django backend...
-start "Django Backend" python manage.py runserver
+echo Starting Django backend (using venv's python so the new window does
+echo not need to re-activate)...
+start "Django Backend" "%VENV_DIR%\Scripts\python.exe" manage.py runserver
 
 echo.
 echo Installing frontend dependencies...

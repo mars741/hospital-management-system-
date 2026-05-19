@@ -11,22 +11,51 @@ echo "======================================"
 echo "Hospital Management System - Setup"
 echo "======================================"
 
-# Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND_DIR="$SCRIPT_DIR/Frontend/hospital-frontend"
+VENV_DIR="$SCRIPT_DIR/venv"
 
 echo ""
-echo "Installing backend dependencies..."
-pip3 install -r "$SCRIPT_DIR/requirements.txt"
+echo "Checking Python version..."
+python3 - <<'PY'
+import sys
+v = sys.version_info
+if not ((3, 10) <= (v.major, v.minor) <= (3, 13)):
+    print(f"[WARN] Python {v.major}.{v.minor} is outside the tested 3.10-3.13 range.")
+    print("[WARN] If pip install fails (psycopg2, cffi, or cryptography wheel errors),")
+    print("[WARN] install Python 3.12 and re-run setup.sh:")
+    print("[WARN]   macOS: brew install python@3.12")
+    print("[WARN]   Linux: use your package manager, or download from python.org")
+PY
+
+echo ""
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating Python virtual environment at ./venv/ ..."
+    python3 -m venv "$VENV_DIR"
+else
+    echo "Reusing existing virtual environment at ./venv/ ..."
+fi
+
+# Activate the venv for the remainder of this script. After this point,
+# `python` and `pip` refer to the venv's binaries, not the system Python.
+# shellcheck disable=SC1091
+. "$VENV_DIR/bin/activate"
+
+echo ""
+echo "Installing backend dependencies (requirements.txt only — production"
+echo "extras like psycopg2-binary live in requirements-prod.txt and are"
+echo "NOT installed for local dev)..."
+python -m pip install --upgrade pip
+pip install -r "$SCRIPT_DIR/requirements.txt"
 
 echo ""
 echo "Setting up database..."
 cd "$SCRIPT_DIR"
-python3 manage.py migrate
+python manage.py migrate
 
 echo ""
 echo "Creating minimal demo users (patient1, doctor1..5 — password: test123)..."
-python3 manage.py shell -c "
+python manage.py shell -c "
 from accounts.models import User, Patient, Doctor, Department
 from datetime import date
 
@@ -61,12 +90,12 @@ else:
 echo ""
 echo "Seeding full role-based demo accounts (admin, doctor_*, nurse_*, pharmacist*, manager*, patient1..15 — password: Pass1234!)..."
 echo "  (this uses update_or_create — safe to re-run.)"
-python3 manage.py seed_data
+python manage.py seed_data
 
 echo ""
 echo "Starting Django backend..."
 cd "$SCRIPT_DIR"
-python3 manage.py runserver &
+python manage.py runserver &
 BACKEND_PID=$!
 
 echo ""
@@ -83,10 +112,8 @@ sleep 3
 
 echo ""
 echo "Opening browser..."
-# Mac
 if command -v open &> /dev/null; then
     open http://localhost:5173
-# Linux
 elif command -v xdg-open &> /dev/null; then
     xdg-open http://localhost:5173
 fi

@@ -24,7 +24,9 @@ setup script for your OS installs deps, runs migrations, seeds all
 demo accounts (see [Demo accounts](#demo-accounts)), starts both
 servers, and opens the browser.
 
-You need **Python 3.x** (3.12 recommended) and **Node.js 20+**.
+You need **Python 3.10–3.13** (3.12 recommended; **3.14 may fail on some
+dependencies** — see the Troubleshooting section below) and
+**Node.js 20+**.
 
 ### macOS
 
@@ -127,6 +129,29 @@ root, re-run the seed (idempotent — uses `update_or_create`):
 ```bash
 python manage.py seed_data
 ```
+
+**`pip install` fails with `pg_config executable not found` or
+`Failed to build psycopg2-binary`.** You're on a Python version (often
+3.14) that doesn't have a prebuilt `psycopg2-binary` wheel, so pip
+tries to build it from source — which needs PostgreSQL development
+tools.
+
+The local setup script does NOT install `psycopg2-binary` anymore
+(it's in `requirements-prod.txt`, which is only for the Docker /
+PostgreSQL path). If you're still hitting this error, you probably
+pulled an older clone — re-pull the latest `main`, delete the local
+`venv/` folder, and re-run the setup script.
+
+If you have a real reason to install `requirements-prod.txt` locally
+and pip can't find a wheel for your Python version, the simplest fix
+is to install Python 3.12:
+
+```bash
+brew install python@3.12
+```
+
+On Windows, download the 3.12 installer from
+<https://www.python.org/downloads/release/python-3120/>.
 
 **macOS: `python3: command not found`.** Install Apple's command-line
 tools:

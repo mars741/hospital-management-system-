@@ -1,5 +1,10 @@
-# Phase 2 production requirements.
-# Pin to known-good versions for reproducibility.
+# Core runtime dependencies — everything the SQLite-based local dev
+# setup actually needs. Same exact versions that were here before;
+# only psycopg2-binary, gunicorn, and redis moved to
+# requirements-prod.txt.
+#
+# Production / Docker deployments install both files. See
+# deployment/README.md.
 
 # --- Core framework ---
 Django==5.2.13
@@ -18,8 +23,8 @@ cryptography==47.0.0
 cffi==2.0.0
 pycparser==3.0
 
-# --- Phase 2 production additions ---
-gunicorn==21.2.0           # WSGI app server
-psycopg2-binary==2.9.9     # PostgreSQL driver
-whitenoise==6.7.0          # static file server
-redis==5.0.4               # Django cache backend client
+# --- Static file serving ---
+# whitenoise is referenced unconditionally in hospital_project/settings.py
+# (MIDDLEWARE + STORAGES), so it must be installed even in the dev path
+# where Django serves static via runserver.
+whitenoise==6.7.0
