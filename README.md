@@ -17,196 +17,74 @@ communicating with a Django 5 + Django REST Framework backend.
 
 ---
 
-## Scope
-
-- **6 roles:** Patient, Doctor, Nurse, Pharmacist, Management, Admin
-- **15 domain entities:** User, Patient, Doctor, Nurse, Pharmacist, Manager,
-  Department, Appointment, MedicalRecord, Prescription, Drug, DrugStock,
-  Equipment, DoctorAvailability, Room
-- **18 use cases** covering registration, login, booking, cancellation,
-  doctor availability, prescribing, dispensing, inventory, equipment
-  status, and operational KPIs
-- **Centralized RBAC** matrix in `accounts/permissions.py`
-- **Field-level encryption** (Fernet AES-128) for `User.phone` and `Patient.address`
-- **React SPA** frontend (Vite) connected to a **Django REST Framework** backend
-- **Token-based authentication** (`rest_framework.authtoken`)
-- **Docker-based production deployment** (Nginx + Gunicorn + PostgreSQL + Redis)
-
----
-
-## Requirements
-
-Install these before running any of the quick-start blocks below.
-
-| Tool          | Version          | Notes                                              |
-|---------------|------------------|----------------------------------------------------|
-| Python        | **3.12.x**       | Pinned via `.python-version`. 3.11 also works.    |
-| pip           | bundled with Python | `python -m pip --version` to confirm            |
-| Node.js       | **≥ 20.19 LTS**  | Pinned via `Frontend/hospital-frontend/.nvmrc`     |
-| npm           | ≥ 10             | Ships with Node 20.                                |
-| Git           | any recent       | 2.40+ recommended for `.gitattributes` support     |
-| Docker Engine | 24+ (Phase 2)    | Only needed for the full Docker stack              |
-| Docker Compose | v2 (Phase 2)    | `docker compose` (not `docker-compose`)            |
-
-Optional but useful: a virtual-environment manager (`venv`, `pyenv`, `conda`)
-and Node version manager (`nvm`, `fnm`, `volta`).
-
----
-
 ## How to Run
 
 A fresh clone to a working login screen with `admin / Pass1234!`. The
-`setup` script for your OS installs deps, runs migrations, seeds all
+setup script for your OS installs deps, runs migrations, seeds all
 demo accounts (see [Demo accounts](#demo-accounts)), starts both
 servers, and opens the browser.
 
 You need **Python 3.x** (3.12 recommended) and **Node.js 20+**.
 
-### Windows
-
-Open Command Prompt or PowerShell in the folder where you want the repo:
-
-```bat
-git clone https://github.com/mars741/hospital-management-system-.git
-cd hospital-management-system-
-.\setup.bat
-```
-
-When the browser opens at <http://localhost:5173>, log in as
-`admin` / `Pass1234!`.
-
 ### macOS
 
-Open Terminal in the folder where you want the repo:
+Open Terminal in the folder where you want the repo and paste these
+four commands one at a time:
 
 ```bash
 git clone https://github.com/mars741/hospital-management-system-.git
+```
+
+```bash
 cd hospital-management-system-
+```
+
+```bash
 chmod +x setup.sh
+```
+
+```bash
 bash setup.sh
 ```
 
 When the browser opens at <http://localhost:5173>, log in as
 `admin` / `Pass1234!`.
 
-> If you get `python3: command not found`, install Apple's command-line
-> tools first:
-> ```bash
-> xcode-select --install
-> ```
-> Then re-run `bash setup.sh`.
-
-> **Linux:** the macOS commands above work identically (`bash setup.sh`).
-
-## Quick start (Phase 2 — full Docker stack)
-
-### macOS / Linux
+If you get `python3: command not found`, install Apple's command-line
+tools first and re-run `bash setup.sh`:
 
 ```bash
-git clone https://github.com/mars741/hospital-management-system-.git
-cd hospital-management-system-
-cp deployment/.env.example .env       # then edit secrets
-docker compose -f deployment/docker-compose.yml up --build
+xcode-select --install
 ```
 
-### Windows (Command Prompt)
+> **Linux:** the same commands work identically.
+
+### Windows
+
+Open Command Prompt or PowerShell in the folder where you want the
+repo and paste these three commands one at a time:
 
 ```bat
 git clone https://github.com/mars741/hospital-management-system-.git
-cd hospital-management-system-
-copy deployment\.env.example .env
-docker compose -f deployment\docker-compose.yml up --build
 ```
 
-### Windows (PowerShell)
-
-```powershell
-git clone https://github.com/mars741/hospital-management-system-.git
-cd hospital-management-system-
-Copy-Item deployment\.env.example .env
-docker compose -f deployment\docker-compose.yml up --build
-```
-
-Visit <http://localhost> (port 80). Nginx serves the React build and
-reverse-proxies `/api/*` and `/admin/` to Django.
-
----
-
-## How to run manually
-
-Skip the `setup` script if you want full control (e.g. you already
-have a virtualenv, or just one of the two servers).
-
-### Backend — Django
-
-**macOS / Linux:**
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_data           # rich demo set (Pass1234!)
-python manage.py runserver 8000
-```
-
-**Windows (PowerShell):**
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_data
-python manage.py runserver 8000
-```
-
-**Windows (Command Prompt):**
 ```bat
-python -m venv .venv
-.venv\Scripts\activate.bat
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_data
-python manage.py runserver 8000
+cd hospital-management-system-
 ```
 
-> If PowerShell blocks `Activate.ps1` with an execution-policy error, run once:
-> `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
-
-### Frontend — React + Vite
-
-In a second terminal, from the repo root:
-
-**macOS / Linux:**
-```bash
-cd Frontend/hospital-frontend
-npm install
-npm run dev
-```
-
-**Windows (PowerShell or Command Prompt):**
 ```bat
-cd Frontend\hospital-frontend
-npm install
-npm run dev
+.\setup.bat
 ```
 
-Then open <http://localhost:5173>. The backend must be running at
-`http://localhost:8000` for the frontend to authenticate.
-
-### Running the tests
-
-```bash
-python manage.py test accounts
-```
-
-(Same command on every OS; no extra setup.)
+When the browser opens at <http://localhost:5173>, log in as
+`admin` / `Pass1234!`.
 
 ---
 
 ## Demo accounts
 
-`setup.bat` / `setup.sh` now runs `python manage.py seed_data` as part
-of the install, so every account below exists in the database
+`setup.bat` / `setup.sh` runs `python manage.py seed_data` as part of
+the install, so every account below exists in the database
 immediately after the script finishes.
 
 **All accounts use the same password: `Pass1234!`**
@@ -223,11 +101,9 @@ immediately after the script finishes.
 The exact list is defined in `accounts/management/commands/seed_data.py`
 (`USERS`) — that file is the source of truth.
 
-> **Legacy mini-set:** the older minimal seed (`seed.py`) additionally
-> creates `doctor1`–`doctor5` with the legacy password `test123`. They
-> are kept for backwards compatibility but are not the recommended
-> demo accounts. `patient1` is in both seeds; the richer `seed_data`
-> overwrites its password to `Pass1234!`.
+The older minimal seed (`seed.py`) additionally creates `doctor1`–`doctor5`
+with the legacy password `test123`. They are kept for backwards
+compatibility but are not the recommended demo accounts.
 
 ---
 
@@ -242,7 +118,7 @@ The exact list is defined in `accounts/management/commands/seed_data.py`
   terminal window is alive and reachable at <http://localhost:8000/api/health/>.
 - **429 Too Many Requests** → DRF's anonymous rate-limit has kicked in
   after too many failed attempts. Wait one minute, then try again.
-- **Anything else** → the login UI now displays the HTTP status code in
+- **Anything else** → the login UI displays the HTTP status code in
   the error message — share that with whoever is helping you debug.
 
 **`Pass1234!` is still rejected after running setup.** From the repo
@@ -253,7 +129,11 @@ python manage.py seed_data
 ```
 
 **macOS: `python3: command not found`.** Install Apple's command-line
-tools: `xcode-select --install`.
+tools:
+
+```bash
+xcode-select --install
+```
 
 **macOS / Linux: `setup.sh: bad interpreter`.** A Windows clone may have
 rewritten the shell script with CRLF line endings. Re-clone the repo
@@ -261,7 +141,28 @@ rewritten the shell script with CRLF line endings. Re-clone the repo
 `dos2unix setup.sh` if available.
 
 **Windows: PowerShell blocks `Activate.ps1`.** Run once:
-`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+---
+
+## Scope
+
+- **6 roles:** Patient, Doctor, Nurse, Pharmacist, Management, Admin
+- **15 domain entities:** User, Patient, Doctor, Nurse, Pharmacist, Manager,
+  Department, Appointment, MedicalRecord, Prescription, Drug, DrugStock,
+  Equipment, DoctorAvailability, Room
+- **18 use cases** covering registration, login, booking, cancellation,
+  doctor availability, prescribing, dispensing, inventory, equipment
+  status, and operational KPIs
+- **Centralized RBAC** matrix in `accounts/permissions.py`
+- **Field-level encryption** (Fernet AES-128) for `User.phone` and `Patient.address`
+- **React SPA** frontend (Vite) connected to a **Django REST Framework** backend
+- **Token-based authentication** (`rest_framework.authtoken`)
+- **Docker-based production deployment** (Nginx + Gunicorn + PostgreSQL + Redis) —
+  see the "Production deployment (advanced)" section at the bottom.
 
 ---
 
@@ -301,46 +202,48 @@ rewritten the shell script with CRLF line endings. Re-clone the repo
 ```
 .
 ├── README.md
-├── SAD.docx                              ← Phase 1 SAD (v1.0)
-├── SAD_v2.docx                           ← Phase 2 SAD (v2.0, extended)
-├── setup.sh / setup.bat                  ← Local dev setup (no Docker)
-├── seed.py                               ← Minimal seed (legacy)
-├── requirements.txt                      ← Python deps incl. Phase 2 prod
+├── SAD.docx
+├── SAD_v2.docx
+├── setup.sh / setup.bat
+├── seed.py
+├── requirements.txt
 ├── manage.py
-├── hospital_project/                     ← Django project settings + URLs
-├── accounts/                             ← Models, views, API, permissions
-│   ├── models.py                         ← 15 domain entities
-│   ├── api_views.py                      ← REST API endpoints
-│   ├── serializers.py                    ← JSON serializers
-│   ├── permissions.py                    ← Centralized RBAC matrix
-│   ├── views.py                          ← Template-based controllers
-│   ├── forms.py                          ← Input validation
-│   ├── admin.py                          ← Django admin config
-│   └── management/commands/seed_data.py  ← Rich demo data
-├── Frontend/hospital-frontend/           ← React SPA
+├── hospital_project/
+├── accounts/
+│   ├── models.py
+│   ├── api_views.py
+│   ├── serializers.py
+│   ├── permissions.py
+│   ├── views.py
+│   ├── forms.py
+│   ├── admin.py
+│   └── management/commands/seed_data.py
+├── Frontend/hospital-frontend/
 │   └── src/
-│       ├── App.jsx                       ← Login, Sidebar, Dashboard, Book, View,
-│       │                                   MyAvailability, ConfirmCancelDialog (Phase 2.1)
-│       └── App.css                       ← Custom design system
-├── deployment/                           ← Phase 2 deployment infrastructure
-│   ├── Dockerfile.backend                ← Django + Gunicorn image
-│   ├── Dockerfile.frontend               ← React build + Nginx image
-│   ├── docker-compose.yml                ← Full stack (db + redis + backend + nginx)
-│   ├── nginx.conf                        ← Nginx site config (static + reverse proxy)
-│   ├── entrypoint.sh                     ← Backend entrypoint (migrate, collectstatic, gunicorn)
-│   ├── .env.example                      ← Environment template
+│       ├── App.jsx
+│       └── App.css
+├── deployment/
+│   ├── README.md
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend
+│   ├── docker-compose.yml
+│   ├── nginx.conf
+│   ├── entrypoint.sh
+│   ├── .env.example
 │   └── .dockerignore
-├── *.puml                                ← PlantUML sources at the project root
-│   ├── use_case_diagram.puml             ← Use Case View
-│   ├── class_diagram.puml                ← Logical View
-│   ├── sequence_diagram.puml             ← Process View — Phase 1 (legacy)
-│   ├── sequence_diagram_v2.puml          ← Process View — Phase 2 (React + REST)
-│   ├── activity_diagram.puml             ← Process View — appointment lifecycle
-│   ├── sequence_prescription_workflow.puml  ← Process View — prescription workflow
-│   ├── component_diagram.puml            ← Development View (new in Phase 2)
-│   └── deployment_diagram.puml           ← Deployment View (new in Phase 2)
-└── .github/workflows/ci.yml              ← CI: backend tests, frontend build, image smoke
+├── use_case_diagram.puml
+├── class_diagram.puml
+├── sequence_diagram.puml
+├── sequence_diagram_v2.puml
+├── activity_diagram.puml
+├── sequence_prescription_workflow.puml
+├── component_diagram.puml
+├── deployment_diagram.puml
+└── .github/workflows/ci.yml
 ```
+
+The diagram sources live at the project root as `*.puml` and their
+rendered `*.png` siblings.
 
 ---
 
@@ -375,3 +278,14 @@ Per-phase contributions are documented in the SAD (§"Team and Contributions").
 - **Course:** Software Architecture
 - **Phase 1 submission:** 4 May 2026
 - **Phase 2 submission:** 24 May 2026
+
+---
+
+## Production deployment (advanced)
+
+> **⚠️ Do NOT use this to try the project for the first time.**
+> Use the setup script in [How to Run](#how-to-run) above.
+
+Advanced Docker-based deployment (Nginx + Gunicorn + PostgreSQL +
+Redis) and bare-metal "manual run" instructions live in a dedicated
+guide: [`deployment/README.md`](deployment/README.md).
