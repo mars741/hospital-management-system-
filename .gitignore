@@ -23,6 +23,7 @@ media/
 # Node / frontend
 node_modules/
 dist/
+dist_verify/
 .vite/
 
 # IDE

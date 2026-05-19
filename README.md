@@ -53,12 +53,31 @@ and Node version manager (`nvm`, `fnm`, `volta`).
 
 ---
 
-## Quick start (Phase 1 — local dev, no Docker)
+## How to Run
 
-The `setup` scripts install backend + frontend deps, run migrations,
-seed a minimal demo user set, and launch both servers.
+A fresh clone to a working login screen with `admin / Pass1234!`. The
+`setup` script for your OS installs deps, runs migrations, seeds all
+demo accounts (see [Demo accounts](#demo-accounts)), starts both
+servers, and opens the browser.
 
-### macOS / Linux
+You need **Python 3.x** (3.12 recommended) and **Node.js 20+**.
+
+### Windows
+
+Open Command Prompt or PowerShell in the folder where you want the repo:
+
+```bat
+git clone https://github.com/mars741/hospital-management-system-.git
+cd hospital-management-system-
+.\setup.bat
+```
+
+When the browser opens at <http://localhost:5173>, log in as
+`admin` / `Pass1234!`.
+
+### macOS
+
+Open Terminal in the folder where you want the repo:
 
 ```bash
 git clone https://github.com/mars741/hospital-management-system-.git
@@ -67,18 +86,17 @@ chmod +x setup.sh
 bash setup.sh
 ```
 
-### Windows (Command Prompt or PowerShell)
+When the browser opens at <http://localhost:5173>, log in as
+`admin` / `Pass1234!`.
 
-```bat
-git clone https://github.com/mars741/hospital-management-system-.git
-cd hospital-management-system-
-.\setup.bat
-```
+> If you get `python3: command not found`, install Apple's command-line
+> tools first:
+> ```bash
+> xcode-select --install
+> ```
+> Then re-run `bash setup.sh`.
 
-The browser opens automatically at <http://localhost:5173>.
-
-> **Manual run** — if you'd rather start each piece yourself, see
-> [How to run manually](#how-to-run-manually) below.
+> **Linux:** the macOS commands above work identically (`bash setup.sh`).
 
 ## Quick start (Phase 2 — full Docker stack)
 
@@ -187,29 +205,63 @@ python manage.py test accounts
 
 ## Demo accounts
 
-A quick set is created by `setup.sh`:
+`setup.bat` / `setup.sh` now runs `python manage.py seed_data` as part
+of the install, so every account below exists in the database
+immediately after the script finishes.
 
-| Username    | Password | Role       |
-|-------------|----------|------------|
-| `patient1`  | `test123`| PATIENT    |
-| `doctor1..5`| `test123`| DOCTOR     |
+**All accounts use the same password: `Pass1234!`**
 
-For the richer set with one user per role (admin, pharmacist, manager,
-nurse, multiple doctors, multiple patients) — all with password `Pass1234!`:
+| Role        | Usernames                                                                                                                            |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Admin       | `admin`                                                                                                                              |
+| Pharmacist  | `pharmacist1`, `pharmacist2`                                                                                                          |
+| Management  | `manager1`, `manager2`                                                                                                                |
+| Doctor      | `doctor_cardio`, `doctor_cardio2`, `doctor_pediatric`, `doctor_pediatric2`, `doctor_neuro`, `doctor_general`, `doctor_general2`, `doctor_ortho`, `doctor_ortho2` |
+| Nurse       | `nurse_cardio`, `nurse_pediatric`, `nurse_neuro`, `nurse_general`, `nurse_ortho`, `nurse_oncall`                                       |
+| Patient     | `patient1` … `patient15`                                                                                                              |
+
+The exact list is defined in `accounts/management/commands/seed_data.py`
+(`USERS`) — that file is the source of truth.
+
+> **Legacy mini-set:** the older minimal seed (`seed.py`) additionally
+> creates `doctor1`–`doctor5` with the legacy password `test123`. They
+> are kept for backwards compatibility but are not the recommended
+> demo accounts. `patient1` is in both seeds; the richer `seed_data`
+> overwrites its password to `Pass1234!`.
+
+---
+
+## Troubleshooting
+
+**Login is rejected.** Open browser DevTools → Network tab → click the
+`/api/login/` request and read the response:
+
+- **401 Unauthorized** → the username or password is wrong. Use one
+  from [Demo accounts](#demo-accounts) above with `Pass1234!`.
+- **(failed) / red** → the backend isn't running. Check the Django
+  terminal window is alive and reachable at <http://localhost:8000/api/health/>.
+- **429 Too Many Requests** → DRF's anonymous rate-limit has kicked in
+  after too many failed attempts. Wait one minute, then try again.
+- **Anything else** → the login UI now displays the HTTP status code in
+  the error message — share that with whoever is helping you debug.
+
+**`Pass1234!` is still rejected after running setup.** From the repo
+root, re-run the seed (idempotent — uses `update_or_create`):
 
 ```bash
 python manage.py seed_data
 ```
 
-That gives you credentials for every tab on the role-tabbed login screen
-(Admin / Doctor / Nurse / Patient):
+**macOS: `python3: command not found`.** Install Apple's command-line
+tools: `xcode-select --install`.
 
-| Tab     | Username           | Password    |
-|---------|--------------------|-------------|
-| Admin   | `admin`            | `Pass1234!` |
-| Doctor  | `doctor_cardio`    | `Pass1234!` |
-| Nurse   | `nurse_cardio`     | `Pass1234!` |
-| Patient | `patient1`         | `Pass1234!` |
+**macOS / Linux: `setup.sh: bad interpreter`.** A Windows clone may have
+rewritten the shell script with CRLF line endings. Re-clone the repo
+(the committed `.gitattributes` enforces LF for `*.sh`), or run
+`dos2unix setup.sh` if available.
+
+**Windows: PowerShell blocks `Activate.ps1`.** Run once:
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
 ---
 

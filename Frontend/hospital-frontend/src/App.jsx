@@ -8,7 +8,11 @@ async function apiFetch(path, options = {}, token = null) {
   if (token) headers["Authorization"] = `Token ${token}`;
   const res = await fetch(`${API}${path}`, { ...options, headers });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Request failed");
+  if (!res.ok) {
+    const err = new Error(data.error || data.detail || "Request failed");
+    err.status = res.status;
+    throw err;
+  }
   return data;
 }
 
@@ -39,7 +43,17 @@ function LoginPage({ onLogin }) {
       });
       onLogin(data.user, data.token);
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      if (err instanceof TypeError) {
+        setError("Cannot reach the server — is the backend running?");
+      } else if (err.status === 401) {
+        setError("Invalid credentials. Please try again.");
+      } else if (err.status === 429) {
+        setError("Too many attempts, please wait a minute.");
+      } else if (err.status) {
+        setError(`Login failed (HTTP ${err.status}).`);
+      } else {
+        setError(err.message || "Login failed.");
+      }
     } finally {
       setLoading(false);
     }

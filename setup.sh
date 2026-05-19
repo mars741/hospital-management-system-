@@ -1,6 +1,11 @@
 #!/bin/bash
 # Works on Mac and Linux
 # For Windows: use setup.bat instead
+#
+# Exits immediately on any failure so you don't end up with servers running
+# against an empty / half-seeded database.
+
+set -e
 
 echo "======================================"
 echo "Hospital Management System - Setup"
@@ -20,7 +25,7 @@ cd "$SCRIPT_DIR"
 python3 manage.py migrate
 
 echo ""
-echo "Creating test users..."
+echo "Creating minimal demo users (patient1, doctor1..5 — password: test123)..."
 python3 manage.py shell -c "
 from accounts.models import User, Patient, Doctor, Department
 from datetime import date
@@ -54,6 +59,11 @@ else:
 "
 
 echo ""
+echo "Seeding full role-based demo accounts (admin, doctor_*, nurse_*, pharmacist*, manager*, patient1..15 — password: Pass1234!)..."
+echo "  (this uses update_or_create — safe to re-run.)"
+python3 manage.py seed_data
+
+echo ""
 echo "Starting Django backend..."
 cd "$SCRIPT_DIR"
 python3 manage.py runserver &
@@ -85,7 +95,14 @@ echo ""
 echo "======================================"
 echo "Website is ready!"
 echo "Go to: http://localhost:5173"
-echo "Username: patient1 / Password: test123"
+echo ""
+echo "Login with any of:"
+echo "  admin          / Pass1234!"
+echo "  doctor_cardio  / Pass1234!"
+echo "  nurse_cardio   / Pass1234!"
+echo "  pharmacist1    / Pass1234!"
+echo "  manager1       / Pass1234!"
+echo "  patient1       / Pass1234!"
 echo "======================================"
 
 wait $BACKEND_PID $FRONTEND_PID
