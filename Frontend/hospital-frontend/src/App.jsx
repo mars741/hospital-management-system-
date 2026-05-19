@@ -282,6 +282,7 @@ function BookingCalendar({ doctorId, token, value, onChange }) {
   const [activeWeekdays, setActiveWeekdays] = useState(null); // Set of backend weekday ints
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing guard pattern; refactor would change behavior
     if (!doctorId) { setActiveWeekdays(null); return; }
     let cancelled = false;
     apiFetch(`/api/doctors/${doctorId}/availability/`, {}, token)
@@ -383,6 +384,7 @@ function BookAppointment({ doctors, token, onBook }) {
   const selectedDoctor = doctors.find(d => d.id === parseInt(form.doctorId));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing guard pattern; refactor would change behavior
     if (!form.doctorId || !form.date) { setSlots([]); return; }
     let cancelled = false;
     setSlotsLoading(true);
