@@ -7,7 +7,7 @@ inventory, equipment tracking, and operational dashboards.
 Built across two iterative phases for the **Software Architecture** course.
 
 - **Phase 1 (delivered 4 May 2026):** architecture design + initial implementation
-- **Phase 2 (delivered 24 May 2026):** development & deployment views + production deployment
+- **Phase 2 (delivered 21 May 2026):** development & deployment views + production deployment
 - **Phase 2.1 (delivered 17 May 2026):** patient cancellation, doctor availability,
   Room model, expanded dataset
 
@@ -302,7 +302,7 @@ Per-phase contributions are documented in the SAD (§"Team and Contributions").
 
 - **Course:** Software Architecture
 - **Phase 1 submission:** 4 May 2026
-- **Phase 2 submission:** 24 May 2026
+- **Phase 2 submission:** 21 May 2026
 
 ---
 
